@@ -12,9 +12,9 @@ import {
 } from './config';
 import routeLog from './middlewares/route-log';
 import whiteListOrigin from './middlewares/white-list-origin';
-import {
-    Chat
-} from './models';
+// import {
+//     Chat
+// } from './models';
 import routers from './routers';
 import {
     renderErr

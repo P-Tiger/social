@@ -1,5 +1,5 @@
 import Parameter from 'parameter'
-var parameter = new Parameter();
+let parameter = new Parameter();
 
 let keysPostAuth = {
     password: {
@@ -7,7 +7,7 @@ let keysPostAuth = {
         required: true,
         allowNull: false
     },
-    email: {
+    user_name: {
         type: 'string',
         required: true,
         allowNull: false

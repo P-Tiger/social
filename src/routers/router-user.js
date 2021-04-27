@@ -7,12 +7,18 @@ import {
     verify_user_token
 } from '../middlewares/jwt-verify';
 import {
-    validatorsPostUser
-} from '../validators/validators-user'
-import {
     User
 } from '../models';
-import { renderErr } from './helper';
+import {
+    validatorsDetailUser,
+    validatorsPostUser,
+    validatorsPutPasswordMe,
+    validatorsPutUser
+} from '../validators/validators-user';
+import {
+    renderErr,
+    renderlogInfo
+} from './helper';
 
 const router = express.Router();
 
@@ -22,24 +28,31 @@ router.get('/v1/users', verify_user_token, async (req, res, next) => {
     return res.status(200).send(data);
 });
 
-router.post('/v1/users', validatorsPostUser, async (req, res, next) => {
+router.post('/v1/users', verify_user_token, validatorsPostUser, async (req, res, next) => {
+    let user = req.state.user
     let {
-        email,
+        user_name,
         password,
         name,
+        list_department
     } = req.body;
     let dataInsert = {
         password: bcrypt.hashSync(password, cfg("BCRYPT_SALT_ROUNDS", parseInt)),
-        email: email,
+        user_name: user_name,
         name: name,
-        token_info: ""
+        token_info: "",
+        list_department: list_department || [],
+        type: User.TYPE_USER_DEPARTMENT,
+        logs: {
+            list: [renderlogInfo(1, "user", user)]
+        }
     }
-    if (email) {
+    if (user_name) {
         let checkData = await User.findOne({
-            email: email
-        }).exec()
+            user_name: user_name
+        })
         if (checkData) {
-            return renderErr("User Create", res, 409, "email");
+            return renderErr("User Create", res, 409, "user_name");
         }
     }
     let data = null
@@ -52,4 +65,92 @@ router.post('/v1/users', validatorsPostUser, async (req, res, next) => {
     data = await User.findById(data.id).exec();
     return res.status(200).send(data)
 });
+
+router.put('/v1/users/:id', verify_user_token, validatorsDetailUser, validatorsPutUser, async (req, res, next) => {
+    let user = req.state.user
+    let id = req.params.id
+    let data = await User.findById(id);
+    if (!data) {
+        return renderErr("Update User", res, 404, "id")
+    }
+    if (data.type !== User.TYPE_USER_STUDENT) {
+        return renderErr("Update User", res, 403, "type")
+    }
+    let {
+        name,
+        image,
+        faculty,
+        class_room
+    } = req.body;
+
+    let dataUpdate = {}
+    let logs = data.logs || {}
+    let listLogs = logs.list || []
+    let studentInfo = data.student_info || {}
+    if (name) {
+        listLogs.push(renderlogInfo("edit", "user", user, "name", data.name || '', name))
+        dataUpdate.name = name;
+    }
+    if (image) {
+        listLogs.push(renderlogInfo("edit", "user", user, "image", studentInfo.image || '', image))
+        studentInfo.image = image;
+    }
+    if (faculty) {
+        listLogs.push(renderlogInfo("edit", "user", user, "faculty", studentInfo.faculty || '', faculty))
+        studentInfo.faculty = faculty;
+    }
+    if (class_room) {
+        listLogs.push(renderlogInfo("edit", "user", user, "class_room", studentInfo.class_room || '', class_room))
+        studentInfo.class_room = class_room;
+    }
+    logs.list = listLogs
+    dataUpdate.logs = logs
+    dataUpdate.student_info = studentInfo
+    try {
+        await data.update(dataUpdate);
+    } catch (error) {
+        console.log(error);
+        return renderErr("User Update Password", res, 500, "User Password Update");
+    }
+    return res.status(200).send(data)
+});
+
+router.put('/v1/users-password/me', verify_user_token, validatorsPutPasswordMe, async (req, res, next) => {
+    let user = req.state.user;
+    let {
+        password,
+    } = req.body;
+    let dataUpdate = {
+        password: bcrypt.hashSync(password, cfg("BCRYPT_SALT_ROUNDS", parseInt)),
+    }
+    let data = null
+    try {
+        data = await User.findByIdAndUpdate(user.id, dataUpdate);
+    } catch (error) {
+        console.log(error);
+        return renderErr("User Update Password", res, 500, "User Password Update");
+    }
+    return res.status(200).send(data)
+});
+
+router.put('/v1/reset-password/id', verify_user_token, validatorsDetailUser, async (req, res, next) => {
+    let id = req.params.id;
+    let data = await User.findById(id);
+    if (!data) {
+        return renderErr("Update Password", res, 404, "id")
+    }
+    let dataUpdate = {
+        password: bcrypt.hashSync(cfg("RESET_PASSWORD", String), cfg("BCRYPT_SALT_ROUNDS", parseInt)),
+    }
+    try {
+        data.update(dataUpdate);
+    } catch (error) {
+        console.log(error);
+        return renderErr("User Update Password", res, 500, "User Password Update");
+    }
+    return res.status(200).send(data)
+});
+
+
+
 export default router;

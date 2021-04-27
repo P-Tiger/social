@@ -23,6 +23,46 @@ import {
 const router = express.Router();
 router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
     let {
+        user_name,
+        password
+    } = req.body;
+    let user = await User.findOne({
+        user_name: user_name
+    });
+    let a = false;
+    try {
+        a = bcrypt.compareSync(password, user.password);
+    } catch {
+        return renderErr("Login", res, 403, "Incorrect username or password");
+    }
+    if (a) {
+        let data = {
+            id: user.id,
+            name: user.name || "",
+            type: user.type || null
+        };
+        const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
+        const token = jwt.sign(data, cert, {
+            algorithm: 'ES256'
+        });
+        try {
+            await User.findByIdAndUpdate(user.id, {
+                token_info: token
+            }, {})
+        } catch (e) {
+            return renderErr("Login", res, 500, "Update token");
+        }
+        res.status(200).send(Object.assign({
+            token
+        }, data));
+    } else {
+        return renderErr("Login", res, 403, "Incorrect username or password");
+    }
+    await next();
+});
+
+router.post('/v1/login-google', validatorsPostAuth, async (req, res, next) => {
+    let {
         email,
         password
     } = req.body;
