@@ -1,8 +1,8 @@
 {
-  "name": "chat-mongo",
+  "name": "social",
   "version": "1.0.0",
   "main": "src/index.js",
-  "repository": "https://github.com/P-Tiger/chat-mongo.git",
+  "repository": "https://github.com/P-Tiger/social.git",
   "author": "Phi Ho <thivvnlh@gmail.com>",
   "license": "MIT",
   "scripts": {
@@ -18,7 +18,7 @@
     "@babel/plugin-transform-runtime": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "mocha": "^8.3.2",
-    "nodemon": "^1.10.0"
+    "nodemon": "^1.19.4"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
