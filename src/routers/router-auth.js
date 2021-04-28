@@ -48,7 +48,7 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
         try {
             await User.findByIdAndUpdate(user.id, {
                 token_info: token
-            }, {})
+            })
         } catch (e) {
             return renderErr("Login", res, 500, "Update token");
         }
