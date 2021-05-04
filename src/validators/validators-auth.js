@@ -14,6 +14,15 @@ let keysPostAuth = {
     },
 }
 
+let keysPostAuthGoogle = {
+    token_google: {
+        type: 'string',
+        required: true,
+        allowNull: false
+    },
+
+}
+
 async function validatorsPostAuth(req, res, next) {
     let errors = parameter.validate(keysPostAuth, req.body)
     if (errors) {
@@ -22,6 +31,15 @@ async function validatorsPostAuth(req, res, next) {
     await next();
 }
 
+async function validatorsPostAuthGoogle(req, res, next) {
+    let errors = parameter.validate(keysPostAuthGoogle, req.body)
+    if (errors) {
+        return res.status(400).send(errors)
+    }
+    await next();
+}
+
 export {
-    validatorsPostAuth
+    validatorsPostAuth,
+    validatorsPostAuthGoogle
 }

@@ -14,11 +14,15 @@ import {
     readFileAsync
 } from '../services/file';
 import {
-    validatorsPostAuth
+    validatorsPostAuth,
+    validatorsPostAuthGoogle
 } from '../validators/validators-auth';
 import {
     renderErr
 } from './helper';
+import {
+    OAuth2Client
+} from 'google-auth-library'
 
 const router = express.Router();
 router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
@@ -61,42 +65,61 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
     await next();
 });
 
-router.post('/v1/login-google', validatorsPostAuth, async (req, res, next) => {
+router.post('/v1/login-google', validatorsPostAuthGoogle, async (req, res, next) => {
+    const client = new OAuth2Client(process.env.CLIENT_ID)
     let {
-        email,
-        password
+        token_google,
     } = req.body;
-    let user = await User.findOne({
-        email: email
+    const ticket = await client.verifyIdToken({
+        idToken: token_google,
+        audience: process.env.CLIENT_ID
     });
-    let a = false;
-    try {
-        a = bcrypt.compareSync(password, user.password);
-    } catch {
-        return renderErr("Login", res, 403, "Incorrect username or password");
+    if (!ticket) {
+        return renderErr("Login google", res, 400, "token")
     }
-    if (a) {
-        let data = {
-            id: user.id,
-            name: user.name || "",
-        };
-        const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
-        const token = jwt.sign(data, cert, {
-            algorithm: 'ES256'
-        });
+    const { name, email, picture } = ticket.getPayload();
+    let checkEmail = await User.findOne({ email: email });
+    let user = null
+    if (!checkEmail) {
         try {
-            await User.findByIdAndUpdate(user.id, {
-                token_info: token
-            }, {})
-        } catch (e) {
-            return renderErr("Login", res, 500, "Update token");
+            user = await User.create({
+                name: name,
+                email: email,
+                student_info: {
+                    faculty: '',
+                    class_room: '',
+                    image: picture
+                },
+                type: User.TYPE_USER_STUDENT
+            })
+        } catch (error) {
+            console.log(error)
+            return renderErr("Login google", res, 500, "Create User")
         }
-        res.status(200).send(Object.assign({
-            token
-        }, data));
     } else {
-        return renderErr("Login", res, 403, "Incorrect username or password");
+        user = checkEmail
     }
+
+    let data = {
+        id: user.id,
+        name: user.name || "",
+        type: user.type || null
+    };
+    const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
+    const token = jwt.sign(data, cert, {
+        algorithm: 'ES256'
+    });
+    try {
+        await User.findByIdAndUpdate(user.id, {
+            token_info: token
+        }, {})
+    } catch (e) {
+        return renderErr("Login", res, 500, "Update token");
+    }
+    res.status(200).send(Object.assign({
+        token
+    }, data));
+
     await next();
 });
 

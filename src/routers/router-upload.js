@@ -15,11 +15,10 @@ import {
 const router = express.Router();
 
 
-router.post('/v1/uploads', async (req, res, next) => {
-    console.log(req.body)
+router.post('/v1/uploads', verify_user_token, async (req, res, next) => {
     upload(req, res, async (err) => {
         if (err) {
-            console.log(err)
+            console.log("error: ", err)
             return renderErr("Upload File", res, 500, "File Update")
         }
         let data = null

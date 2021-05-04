@@ -49,7 +49,7 @@ New.getOne = async (id) => {
 }
 
 New.getList = async (where, paging) => {
-    let data = await New.find();
+    let data = await New.find().populate("creator", { _id: 1, name: 1 });
     return data
 }
 export default New

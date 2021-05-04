@@ -26,7 +26,6 @@ const User = mongoose.model("users", Schema({
     password: {
         type: String,
         trim: true,
-        required: true,
     },
     student_info: {
         faculty: {
@@ -70,7 +69,10 @@ User.TYPE_USER_STUDENT = 3
 
 
 User.getList = async (where, paging) => {
-    let data = await User.find().populate("list_department", { _id: 1, name: 1 });
-    return data
+    let data = await User.find().select("-logs").populate("list_department", { _id: 1, name: 1 });
+    return {
+        total: data.length,
+        data: data
+    }
 }
 export default User

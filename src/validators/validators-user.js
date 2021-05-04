@@ -1,4 +1,5 @@
 import Parameter from 'parameter'
+import { User } from '../models';
 let parameter = new Parameter();
 
 let keysPostCreate = {
@@ -19,9 +20,14 @@ let keysPostCreate = {
     },
     list_department: {
         type: 'array',
-        required: true,
+        required: false,
         allowNull: false,
         itemType: 'string'
+    },
+    type: {
+        type: 'enum',
+        require: true,
+        values: [User.TYPE_USER_ADMIN, User.TYPE_USER_DEPARTMENT]
     }
 }
 

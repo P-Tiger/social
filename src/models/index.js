@@ -7,6 +7,7 @@ import Interaction from './interaction';
 import New from './new';
 import Post from './post';
 import UploadFile from './upload_file';
+import Category from './category';
 
 
 export {
@@ -17,5 +18,6 @@ export {
 	Interaction,
 	New,
 	Post,
-	UploadFile
+	UploadFile,
+	Category
 }

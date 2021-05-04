@@ -18,18 +18,18 @@ router.get('/v1/chats', verify_user_token, async (req, res, next) => {
 });
 
 
-router.get('/v1/departments', async (req, res, next) => {
-    let data = null
-    try {
-        data = await Department.create({
-            name: "Ho 2"
-        });
-    } catch (error) {
-        console.log(error);
-        return renderErr("User Create", res, 500, "User Create");
-    }
-    res.send("Success")
-});
+// router.get('/v1/departments', async (req, res, next) => {
+//     let data = null
+//     try {
+//         data = await Department.create({
+//             name: "Ho 2"
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         return renderErr("User Create", res, 500, "User Create");
+//     }
+//     res.send("Success")
+// });
 
 // router.get('/v1/users', async (req, res, next) => {
 //     let data = null

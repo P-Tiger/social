@@ -34,7 +34,8 @@ router.post('/v1/users', verify_user_token, validatorsPostUser, async (req, res,
         user_name,
         password,
         name,
-        list_department
+        list_department,
+        type
     } = req.body;
     let dataInsert = {
         password: bcrypt.hashSync(password, cfg("BCRYPT_SALT_ROUNDS", parseInt)),
@@ -42,9 +43,14 @@ router.post('/v1/users', verify_user_token, validatorsPostUser, async (req, res,
         name: name,
         token_info: "",
         list_department: list_department || [],
-        type: User.TYPE_USER_DEPARTMENT,
+        type: type,
         logs: {
             list: [renderlogInfo(1, "user", user)]
+        }
+    }
+    if (type === User.TYPE_USER_DEPARTMENT) {
+        if (!list_department) {
+            return renderErr("User Create", res, 400, "list_department", 2)
         }
     }
     if (user_name) {
@@ -92,8 +98,8 @@ router.put('/v1/users/:id', verify_user_token, validatorsDetailUser, validatorsP
         dataUpdate.name = name;
     }
     if (image) {
-        listLogs.push(renderlogInfo("edit", "user", user, "image", studentInfo.image || '', image))
-        studentInfo.image = image;
+        listLogs.push(renderlogInfo("edit", "user", user, "image", dataUpdate.image || '', image))
+        dataUpdate.image = image;
     }
     if (faculty) {
         listLogs.push(renderlogInfo("edit", "user", user, "faculty", studentInfo.faculty || '', faculty))
