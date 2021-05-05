@@ -15,7 +15,7 @@ let keysPostAuth = {
 }
 
 let keysPostAuthGoogle = {
-    token_google: {
+    token_id: {
         type: 'string',
         required: true,
         allowNull: false

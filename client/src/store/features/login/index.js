@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import {
-  auth
+  auth,
+  auth_google
 } from '../../../data'
 import Swal from 'sweetalert2'
 
@@ -54,10 +55,16 @@ export const { request, clear } = loginSlice.actions;
 
 function* loginHandler(action) {
   try {
-    let response = yield call(auth, action.payload)
+    let response = null;
+    if (action.payload.token_id) {
+      response = yield call(auth_google, action.payload)
+    } else if (action.payload.user_name) {
+      response = yield call(auth, action.payload)
+    }
     yield put({ type: "login/success", payload: response.data })
     localStorage.setItem("_Auth", JSON.stringify(response.data))
   } catch (error) {
+    console.log(error)
     Swal.fire('Incorrect username or password')
     yield put({ type: "login/failure" })
   }

@@ -68,10 +68,10 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
 router.post('/v1/login-google', validatorsPostAuthGoogle, async (req, res, next) => {
     const client = new OAuth2Client(process.env.CLIENT_ID)
     let {
-        token_google,
+        token_id,
     } = req.body;
     const ticket = await client.verifyIdToken({
-        idToken: token_google,
+        idToken: token_id,
         audience: process.env.CLIENT_ID
     });
     if (!ticket) {
