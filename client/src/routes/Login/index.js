@@ -1,19 +1,19 @@
+import _ from 'lodash';
 import React, {
 	useEffect, useState
 } from 'react';
 import {
+	GoogleLogin
+} from 'react-google-login';
+import {
 	useDispatch,
 	useSelector
 } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import {
 	request
 } from '../../store/features/login';
-import {
-	GoogleLogin
-} from 'react-google-login'
-import _ from 'lodash';
-import Swal from 'sweetalert2';
 
 
 export const Login = () => {
