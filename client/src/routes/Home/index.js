@@ -1,19 +1,15 @@
 import React from 'react';
 import {
-  NavbarComponent,
-  // ChatComponent
+  NavbarComponent
 } from '../../components';
-import { request } from '../../store/features/chat';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
 
 
 export const Home = () => {
-  const dispatch = useDispatch()
-  const chatReducer = useSelector(state => state.chatReducer)
-  useEffect(() => {
-    dispatch(request())
-  }, [dispatch])
+
+
+  // useEffect(() => {
+  //   dispatch(request())
+  // }, [dispatch])
   return (
     <div className='home-container'>
       <NavbarComponent />

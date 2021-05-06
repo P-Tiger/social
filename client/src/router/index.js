@@ -4,7 +4,7 @@ import {
 } from 'react-router-dom';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import {
-  About,
+  NotFound,
   Home,
   Login
 } from '../routes';
@@ -19,8 +19,8 @@ export const Router = () => (
     <Switch>
       <PublicRoute exact path="/" component={Login} />
       <PrivateRoute exact path="/home" component={Home} />
-      <PrivateRoute exact path="/about" component={About} />
-      <PrivateRoute path="*" component={About} />
+      <PrivateRoute exact path="/users" component={Home} />
+      <PrivateRoute path="*" component={NotFound} />
     </Switch>
   </BrowserRouter>
 );

@@ -1,13 +1,13 @@
-import React from 'react'
+import React from 'react';
 import {
     Nav,
     Navbar,
     NavDropdown
 } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { useHistory, Link } from 'react-router-dom';
-import { clear as loginClear } from '../../store/features/login';
+import { useHistory } from 'react-router-dom';
 import { clear as chatClear } from '../../store/features/chat';
+import { clear as loginClear } from '../../store/features/login';
 import { clear as uploadClear } from '../../store/features/upload';
 import { clear as userClear } from '../../store/features/user';
 
