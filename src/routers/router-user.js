@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import express from 'express';
+import _ from 'lodash';
 import {
     cfg
 } from '../config';
@@ -29,7 +30,7 @@ router.get('/v1/users', verify_user_token, async (req, res, next) => {
 });
 
 router.post('/v1/users', verify_user_token, validatorsPostUser, async (req, res, next) => {
-    let user = req.state.user
+    let user = res.state.user
     let {
         user_name,
         password,
@@ -68,61 +69,76 @@ router.post('/v1/users', verify_user_token, validatorsPostUser, async (req, res,
         console.log(error);
         return renderErr("User Create", res, 500, "User Create");
     }
-    data = await User.findById(data.id).exec();
+    data = await User.findById(data.id)
     return res.status(200).send(data)
 });
 
-router.put('/v1/users/:id', verify_user_token, validatorsDetailUser, validatorsPutUser, async (req, res, next) => {
-    let user = req.state.user
+router.get('/v1/users/:id', verify_user_token, async (req, res, next) => {
     let id = req.params.id
     let data = await User.findById(id);
+    return res.status(200).send(data);
+});
+
+router.put('/v1/users', verify_user_token, validatorsPutUser, async (req, res, next) => {
+    let user = res.state.user
+    let data = await User.findById(user.id);
     if (!data) {
         return renderErr("Update User", res, 404, "id")
     }
-    if (data.type !== User.TYPE_USER_STUDENT) {
+    if (!_.includes([User.TYPE_USER_DEPARTMENT, User.TYPE_USER_STUDENT], data.type)) {
         return renderErr("Update User", res, 403, "type")
     }
     let {
         name,
         image,
         faculty,
-        class_room
+        class_room,
+        password
     } = req.body;
 
     let dataUpdate = {}
     let logs = data.logs || {}
     let listLogs = logs.list || []
     let studentInfo = data.student_info || {}
-    if (name) {
-        listLogs.push(renderlogInfo("edit", "user", user, "name", data.name || '', name))
-        dataUpdate.name = name;
-    }
-    if (image) {
-        listLogs.push(renderlogInfo("edit", "user", user, "image", dataUpdate.image || '', image))
-        dataUpdate.image = image;
-    }
-    if (faculty) {
-        listLogs.push(renderlogInfo("edit", "user", user, "faculty", studentInfo.faculty || '', faculty))
-        studentInfo.faculty = faculty;
-    }
-    if (class_room) {
-        listLogs.push(renderlogInfo("edit", "user", user, "class_room", studentInfo.class_room || '', class_room))
-        studentInfo.class_room = class_room;
+
+    if (data.type === User.TYPE_USER_STUDENT) {
+        if (name) {
+            listLogs.push(renderlogInfo("edit", "user", user, "name", data.name || '', name))
+            dataUpdate.name = name;
+        }
+        if (image) {
+            listLogs.push(renderlogInfo("edit", "user", user, "image", dataUpdate.image || '', image))
+            studentInfo.image = image;
+        }
+        if (faculty) {
+            listLogs.push(renderlogInfo("edit", "user", user, "faculty", studentInfo.faculty || '', faculty))
+            studentInfo.faculty = faculty;
+        }
+        if (class_room) {
+            listLogs.push(renderlogInfo("edit", "user", user, "class_room", studentInfo.class_room || '', class_room))
+            studentInfo.class_room = class_room;
+        }
+    } else {
+        if (password) {
+            dataUpdate.password = bcrypt.hashSync(password, cfg("BCRYPT_SALT_ROUNDS", parseInt))
+            dataUpdate.token_info = ""
+        }
     }
     logs.list = listLogs
     dataUpdate.logs = logs
     dataUpdate.student_info = studentInfo
     try {
-        await data.update(dataUpdate);
+        await User.findByIdAndUpdate(user.id, dataUpdate);
     } catch (error) {
         console.log(error);
         return renderErr("User Update Password", res, 500, "User Password Update");
     }
+    data = await User.findById(user.id)
     return res.status(200).send(data)
 });
 
 router.put('/v1/users-password/me', verify_user_token, validatorsPutPasswordMe, async (req, res, next) => {
-    let user = req.state.user;
+    let user = res.state.user;
     let {
         password,
     } = req.body;

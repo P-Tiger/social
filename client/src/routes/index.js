@@ -3,3 +3,7 @@
 export * from './Home';
 export * from './Login';
 export * from './NotFound';
+export * from './FormUser';
+export * from './Me';
+export * from './News';
+

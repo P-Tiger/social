@@ -9,8 +9,8 @@ import {
   userReducer,
   userSaga,
 
-  chatReducer,
-  chatSaga,
+  departmentReducer,
+  departmentSaga,
 
   uploadReducer,
   uploadSaga
@@ -24,7 +24,7 @@ function* rootSaga() {
   yield all([
     loginSaga(),
     userSaga(),
-    chatSaga(),
+    departmentSaga(),
     uploadSaga()
   ]);
 }
@@ -35,7 +35,7 @@ export const store = configureStore({
   reducer: {
     loginReducer,
     userReducer,
-    chatReducer,
+    departmentReducer,
     uploadReducer
   },
   middleware: (getDefaultMiddleware) => [

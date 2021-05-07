@@ -88,7 +88,7 @@ router.post('/v1/login-google', validatorsPostAuthGoogle, async (req, res, next)
                 student_info: {
                     faculty: '',
                     class_room: '',
-                    image: picture
+                    image: picture || ""
                 },
                 type: User.TYPE_USER_STUDENT
             })

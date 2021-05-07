@@ -23,7 +23,7 @@ const app = express();
 app
     .use(whiteListOrigin)
     .use(routeLog)
-    .use('/v1/src/uploads', express.static(path.join(__dirname, 'uploads')))
+    .use("/v1/" + cfg("DIR_UPLOAD", String), express.static(path.join(__dirname, 'uploads')))
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json())
     .use(routers)

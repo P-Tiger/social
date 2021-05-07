@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { clear as chatClear } from '../../store/features/chat';
+import { clear as chatClear } from '../../store/features/department';
 import { clear as loginClear } from '../../store/features/login';
 import { clear as uploadClear } from '../../store/features/upload';
 import { clear as userClear } from '../../store/features/user';
@@ -40,13 +40,17 @@ export const NavbarComponent = () => {
                     <Nav.Link href="/news">Thông Báo</Nav.Link>
                     {
                         user?.type === 1 ? (
-                            <Nav.Link href="/users">Người dùng khoa phòng</Nav.Link>
+                            <Nav.Link href="/users">Tạo tài khoản Phòng/Khoa</Nav.Link>
                         ) : <React.Fragment />
                     }
                 </Nav>
-                <Nav onSelect={handleSelect} activeKey="0">
+                <Nav onSelect={handleSelect} className="mr-3">
                     <NavDropdown title={user ? user.name : "USER"} id="nav-dropdown">
-                        <NavDropdown.Item eventKey="1" bg='white'>Thông tin của tôi</NavDropdown.Item>
+                        {
+                            user?.type !== 1 ? (
+                                <NavDropdown.Item eventKey="1" bg='white'>Thông tin của tôi</NavDropdown.Item>
+                            ) : <React.Fragment />
+                        }
                         <NavDropdown.Divider />
                         <NavDropdown.Item eventKey="2" bg='white'>Đăng xuất</NavDropdown.Item>
                     </NavDropdown>

@@ -5,7 +5,7 @@ import {
 } from '../services/logger';
 const logger = getLogger('database');
 mongoose.connect(cfg("DB_LINK", String), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
-
+mongoose.set('bufferCommands', false);
 const DB = mongoose.connection;
 DB.on('error', (err) => {
     logger.error(`(MongoDB) Unable to connect to the database: \n%o`, err);

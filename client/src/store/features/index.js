@@ -2,5 +2,5 @@
 
 export * from './login';
 export * from './user';
-export * from './chat';
+export * from './department';
 export * from './upload';
