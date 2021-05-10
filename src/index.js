@@ -12,12 +12,13 @@ import {
 } from './config';
 import routeLog from './middlewares/route-log';
 import whiteListOrigin from './middlewares/white-list-origin';
+import { Department, New, User } from './models';
 // import {
 //     Chat
 // } from './models';
 import routers from './routers';
 import {
-    renderErr
+    renderErr, renderlogInfo
 } from './routers/helper';
 const app = express();
 app
@@ -40,30 +41,54 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-    console.log("conection");
-    // socket.on("Input Chat Message", async msg => {
-    //     let {
-    //         chatMessage,
-    //         userId,
-    //         type
-    //     } = msg
-    //     let data = null
-    //     try {
-    //         data = await Chat.create({
-    //             message: chatMessage,
-    //             sender: userId,
-    //             type: type
-    //         })
-    //     } catch (error) {
-    //         return renderErr("Chat Create", res, 500, "Create Chat")
-    //     }
-    //     data = await Chat.findById(data.id).populate("sender", { token_info: 0, password: 0 });
-    //     return io.emit("Output Chat Message", data);
-    // })
-
-    // socket.on('User is disconnect', (data) => {
-    //     console.log('disconect: ', socket.rooms);
-    // });
+    console.log("connection");
+    socket.on("Create News", async msg => {
+        let {
+            title,
+            content,
+            department,
+            user,
+        } = msg
+        let dataInsert = {
+            creator: user.id,
+            department: department,
+            logs: {
+                list: [renderlogInfo(1, "user", user)]
+            }
+        }
+        if (title) {
+            dataInsert.title = title
+        }
+        if (content) {
+            dataInsert.content = content
+        }
+        let data = null;
+        try {
+            data = await New.create(dataInsert);
+            await data.save();
+        } catch (error) {
+            console.log(error);
+            return renderErr("User Create", res, 500, "User Create");
+        }
+        let dataList = await New.find({ status: 1 }).limit(10).skip(0).sort([["createdAt", -1]]).populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name'
+        }, {
+            path: 'department',
+            model: Department,
+            select: 'id name'
+        }])
+        let count = await New.countDocuments({ status: 1 })
+        let dataReturn = {
+            total: count,
+            data: dataList
+        }
+        return io.emit("Output Create", { dataList: dataReturn, data: data });
+    })
+    socket.on('User is disconnect', (data) => {
+        console.log('disconnect: ', socket.rooms);
+    });
 })
 
 httpServer.listen(cfg('APP_PORT', parseInt), cfg('APP_HOST', String));

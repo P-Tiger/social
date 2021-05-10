@@ -3,6 +3,26 @@ const dateNow = () => {
 	return moment().format("YYYY-MM-DD HH:mm:ss")
 }
 
+function paging(filters) {
+	let options = {};
+	if (filters.perPage && !isNaN(filters.perPage)) {
+		options.limit = filters.perPage > 100 ? 100 : filters.perPage * 1;
+		if (filters.full == "true") {
+			options.limit = filters.perPage * 1;
+		}
+	} else {
+		options.limit = 20; //default 20 items perPage
+	}
+	if (filters.page > 0) {
+		options.offset = (filters.page - 1) * options.limit;
+	} else {
+		options.offset = 0;
+	}
+	return options;
+}
+
+
+
 function renderErr(where, res, status, field, type, check_type) {
 	res.status(status);
 	if (status == 401) {
@@ -96,4 +116,5 @@ function renderlogInfo(action, table_user, user, column, old_data, new_data, typ
 export {
 	renderErr,
 	renderlogInfo,
+	paging
 };

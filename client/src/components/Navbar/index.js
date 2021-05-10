@@ -5,7 +5,7 @@ import {
     NavDropdown
 } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { clear as chatClear } from '../../store/features/department';
 import { clear as loginClear } from '../../store/features/login';
 import { clear as uploadClear } from '../../store/features/upload';
@@ -16,6 +16,7 @@ export const NavbarComponent = () => {
     let history = useHistory()
     let user = JSON.parse(localStorage.getItem("_Auth"));
     const dispatch = useDispatch()
+    const location = useLocation()
 
     const handleSelect = (eventKey) => {
         // Clear token
@@ -31,13 +32,13 @@ export const NavbarComponent = () => {
         }
     }
     return (
-        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark">
+        <Navbar collapseOnSelect expand="lg" bg="primary" variant="dark" sticky="top" >
             <Navbar.Brand href="/home">Final Project</Navbar.Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-            <Navbar.Collapse id="responsive-navbar-nav">
-                <Nav className="mr-auto">
+            <Navbar.Collapse id="responsive-navbar-nav" activeKey="/news">
+                <Nav className="mr-auto" activeKey={location.pathname} >
                     <Nav.Link href="/home">Trang Chủ</Nav.Link>
-                    <Nav.Link href="/news">Thông Báo</Nav.Link>
+                    <Nav.Link href="/news#">Thông Báo</Nav.Link>
                     {
                         user?.type === 1 ? (
                             <Nav.Link href="/users">Tạo tài khoản Phòng/Khoa</Nav.Link>

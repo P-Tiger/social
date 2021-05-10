@@ -4,3 +4,4 @@ export * from './login';
 export * from './user';
 export * from './department';
 export * from './upload';
+export * from './news';

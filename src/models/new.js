@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import { Department, User } from '.';
 
 const New = mongoose.model("news", Schema({
     type: {
@@ -43,13 +44,28 @@ const New = mongoose.model("news", Schema({
     timestamps: true
 }))
 
+New.STT_ACTIVE = 1
+New.STT_INACTIVE = -1
+
 New.getOne = async (id) => {
     let data = await New.findById(id);
     return data
 }
 
 New.getList = async (where, paging) => {
-    let data = await New.find().populate("creator", { _id: 1, name: 1 });
-    return data
+    let data = await New.find(where).limit(paging.limit).skip(paging.offset).sort([["createdAt", -1]]).populate([{
+        path: 'creator',
+        model: User,
+        select: 'id name'
+    }, {
+        path: 'department',
+        model: Department,
+        select: 'id name'
+    }])
+    let count = await New.countDocuments(where)
+    return {
+        total: count,
+        data: data
+    }
 }
 export default New

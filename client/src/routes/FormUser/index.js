@@ -54,10 +54,10 @@ export const FormUser = () => {
     }
 
     const handleChangeSelect = (dataSelect) => {
-        let dataCurent = _.map(dataSelect, (x) => {
+        let dataCurrent = _.map(dataSelect, (x) => {
             return x.value;
         })
-        setDepartment(dataCurent)
+        setDepartment(dataCurrent)
     }
     return (
         <React.Fragment>

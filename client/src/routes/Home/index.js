@@ -4,12 +4,11 @@ import {
 } from '../../components';
 
 
-export const Home = () => {
-
-
+export const Home = ({ socket }) => {
   // useEffect(() => {
   //   dispatch(request())
   // }, [dispatch])
+  console.log(socket)
   return (
     <div className='home-container'>
       <NavbarComponent />

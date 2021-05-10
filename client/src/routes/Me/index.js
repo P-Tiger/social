@@ -92,8 +92,6 @@ export const Me = () => {
                                         <Form.Group controlId="formBasicName">
                                             <Form.Label>Họ và tên</Form.Label>
                                             <Form.Control type="text" placeholder="Nhập tên" value={name} />
-                                            <Form.Label>Họ và tên</Form.Label>
-                                            <Form.Control type="text" placeholder="Nhập tên" value={name} />
                                             <Form.Label>Password</Form.Label>
                                             <Form.Control type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
                                         </Form.Group>

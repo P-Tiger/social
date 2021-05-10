@@ -13,7 +13,10 @@ import {
   departmentSaga,
 
   uploadReducer,
-  uploadSaga
+  uploadSaga,
+
+  newsReducer,
+  newsSaga
 } from './features';
 
 
@@ -25,7 +28,8 @@ function* rootSaga() {
     loginSaga(),
     userSaga(),
     departmentSaga(),
-    uploadSaga()
+    uploadSaga(),
+    newsSaga()
   ]);
 }
 
@@ -36,7 +40,8 @@ export const store = configureStore({
     loginReducer,
     userReducer,
     departmentReducer,
-    uploadReducer
+    uploadReducer,
+    newsReducer
   },
   middleware: (getDefaultMiddleware) => [
     ...getDefaultMiddleware(),
