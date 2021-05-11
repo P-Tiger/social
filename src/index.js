@@ -84,6 +84,15 @@ io.on("connection", (socket) => {
             total: count,
             data: dataList
         }
+        data = await New.findById(data.id).populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name'
+        }, {
+            path: 'department',
+            model: Department,
+            select: 'id name'
+        }])
         return io.emit("Output Create", { dataList: dataReturn, data: data });
     })
     socket.on('User is disconnect', (data) => {
