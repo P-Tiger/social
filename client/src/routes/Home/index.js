@@ -30,9 +30,6 @@ export const Home = ({ socket }) => {
     e.preventDefault();
     console.log(e)
   }
-  {/* <Form onSubmit={handleSubmitDot}>
-          
-          </Form> */}
   const popover = (
     <Popover id="popover-basic">
       <Popover.Content>
