@@ -68,3 +68,89 @@ body {
     left: 0;
     z-index: 100;
   }
+
+  home-container{
+    background-color: #EFF2F5 !important;
+  }
+
+  hr {
+    margin: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .bg-wrap{
+    background-color: white;
+    box-shadow: 2px 2px 2px 2px rgba(175, 147, 147, 0.1);
+    border-radius: 15px;
+  }
+  .input-wrap{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .text{
+    margin: revert;
+    font-size: 20px;
+  }
+
+  .wrap-border-input {
+      border-radius: 40px;
+      margin-left: 20px;
+      cursor: pointer;
+  }
+
+  .wrap-margin{
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+  .wrap{
+    display: flex;
+    margin:1rem;
+    font-weight: 300;
+  }
+  
+  .wrap.header{
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn_dot{
+    cursor: pointer;
+  }
+
+  .wrap.content{
+    display: block;
+  }
+
+  .title{
+    margin-bottom: 1rem;
+  }
+
+  .form-comment{
+    width: 100%; 
+  }
+  .form-input-comment{
+    outline: none;
+    box-shadow: none !important;
+    border-radius: 20px !important;
+  }
+
+  input:focus, textarea:focus, select:focus{
+    outline: none !important;
+  }
+
+  .comment{
+    background-color: #EFF2F5;
+    border-radius: 20px;
+  }
+
+  .css-utils{
+    margin: 0 1rem 1rem 1rem;
+  }
+
+  .more-commit{
+    cursor: pointer;
+  }

@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import { User } from '.'
 
 const Post = mongoose.model("posts", Schema({
     type: {
@@ -33,13 +34,26 @@ const Post = mongoose.model("posts", Schema({
     timestamps: true
 }))
 
+Post.STT_ACTIVE = 1
+Post.STT_INACTIVE = -1
+
 Post.getOne = async (id) => {
     let data = await Post.findById(id);
     return data
 }
 
 Post.getList = async (where, paging) => {
-    let data = await Post.find();
-    return data
+    let data = await Post.find(where).limit(paging.limit).skip(paging.offset).sort([["createdAt", -1]]).
+        populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name'
+        }])
+
+    let count = await Post.countDocuments(where)
+    return {
+        total: count,
+        data: data
+    }
 }
 export default Post
