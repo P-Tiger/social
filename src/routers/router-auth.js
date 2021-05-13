@@ -44,7 +44,8 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
             id: user.id,
             name: user.name || "",
             type: user.type || null,
-            list_department: user.list_department || []
+            list_department: user.list_department || [],
+            image: user.student_info && user.student_info.image || ""
         };
         const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
         const token = jwt.sign(data, cert, {
@@ -105,7 +106,8 @@ router.post('/v1/login-google', validatorsPostAuthGoogle, async (req, res, next)
         id: user.id,
         name: user.name || "",
         type: user.type || null,
-        list_department: user.list_department || []
+        list_department: user.list_department || [],
+        image: user.student_info && user.student_info.image || ""
     };
     const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
     const token = jwt.sign(data, cert, {

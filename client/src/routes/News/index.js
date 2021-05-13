@@ -157,7 +157,7 @@ export const News = ({ socket }) => {
                           {_.map(newsReducer?.newsData?.data, (x) => {
                             return (
                               <ListGroup.Item className="mb-3" onClick={(e) => handleRenderNews(x)}>
-                                {x.title} <span>({moment(x.createdAt).format("YYYY-MM-DD HH:mm:ss")})</span>
+                                {x?.department?.name} - {x.title} <span>({moment(x.createdAt).format("YYYY-MM-DD HH:mm:ss")})</span>
                               </ListGroup.Item>
                             )
                           })}

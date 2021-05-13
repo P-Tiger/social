@@ -47,7 +47,7 @@ Post.getList = async (where, paging) => {
         populate([{
             path: 'creator',
             model: User,
-            select: 'id name'
+            select: 'id name student_info'
         }])
 
     let count = await Post.countDocuments(where)

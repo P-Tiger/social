@@ -40,7 +40,7 @@ async function postsPut(dataPut) {
 }
 
 async function postsPutStatus(dataPut) {
-    let data = await Axios.put(process.env.REACT_APP_API_URL + "/posts", dataPut, {
+    let data = await Axios.put(process.env.REACT_APP_API_URL + "/posts-stt", dataPut, {
         headers: {
             authorization: GetToken()
         }

@@ -12,7 +12,10 @@ const router = express.Router();
 
 router.get('/v1/posts', verify_user_token, async (req, res, next) => {
     let pager = paging(req.query)
-    let data = await Post.getList({}, pager);
+    let where = {
+        status: Post.STT_ACTIVE
+    }
+    let data = await Post.getList(where, pager);
     return res.status(200).send(data);
 });
 
@@ -42,9 +45,43 @@ router.post('/v1/posts', verify_user_token, async (req, res, next) => {
         console.log(error);
         return renderErr("User Create", res, 500, "User Create");
     }
-    res.send("Success")
+    data = await Post.findById(data.id)
+    return res.send(data)
 });
 
+router.put('/v1/posts', verify_user_token, async (req, res, next) => {
+    let user = res.state.user;
+    let data = null
+    let {
+        title,
+        content,
+        id
+    } = req.body
+    let dataUpdate = {}
+    if (!id) {
+        return renderErr("Interaction Update Status", res, 400, "post_id", 2)
+    }
+    if (id) {
+        let checkData = await Post.findById(id)
+        if (!checkData) {
+            return renderErr("Post Create", res, 404, "id")
+        }
+    }
+    if (title) {
+        dataUpdate.title = title
+    }
+    if (content) {
+        dataUpdate.content = content
+    }
+    try {
+        data = await Post.findByIdAndUpdate(id, dataUpdate);
+    } catch (error) {
+        console.log(error);
+        return renderErr("User Create", res, 500, "User Create");
+    }
+    data = await Post.findById(data.id)
+    return res.send(data)
+});
 
 
 router.put('/v1/posts-stt', verify_user_token, async (req, res, next) => {
@@ -52,24 +89,28 @@ router.put('/v1/posts-stt', verify_user_token, async (req, res, next) => {
     let dataUpdate = {
         status: Post.STT_INACTIVE
     }
+    let {
+        id
+    } = req.body
     if (!id) {
         return renderErr("Interaction Update Status", res, 400, "post_id", 2)
     }
     if (id) {
-        let checkData = await Interaction.findById(id)
+        let checkData = await Post.findById(id)
         if (!checkData) {
-            return renderErr("Interaction Create", res, 404, "id")
+            return renderErr("Post Create", res, 404, "id")
         }
     }
 
     let data = null
     try {
-        data = await Interaction.findByIdAndUpdate(id, dataUpdate);
+        data = await Post.findByIdAndUpdate(id, dataUpdate);
     } catch (error) {
         console.log(error);
         return renderErr("Interaction Create", res, 500, "User Create");
     }
-    res.send("Success")
+    data = await Post.findById(data.id);
+    return res.status(200).send(data)
 });
 
 

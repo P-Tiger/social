@@ -46,13 +46,12 @@ Interaction.getOne = async (id) => {
 }
 
 Interaction.getList = async (where, paging) => {
-    let data = await Interaction.find(where).limit(paging.limit).skip(paging.offset).sort([["createdAt", -1]]).
+    let data = await Interaction.find(where).sort([["createdAt", 1]]).
         populate([{
             path: 'creator',
             model: User,
-            select: 'id name'
+            select: 'id name student_info'
         }])
-
     let count = await Interaction.countDocuments(where)
     return {
         total: count,

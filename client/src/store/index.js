@@ -16,9 +16,14 @@ import {
   uploadSaga,
 
   newsReducer,
-  newsSaga
-} from './features';
+  newsSaga,
 
+  postsReducer,
+  postsSaga,
+
+  interactionsReducer,
+  interactionsSaga
+} from './features';
 
 
 
@@ -29,7 +34,9 @@ function* rootSaga() {
     userSaga(),
     departmentSaga(),
     uploadSaga(),
-    newsSaga()
+    newsSaga(),
+    postsSaga(),
+    interactionsSaga()
   ]);
 }
 
@@ -41,7 +48,9 @@ export const store = configureStore({
     userReducer,
     departmentReducer,
     uploadReducer,
-    newsReducer
+    newsReducer,
+    postsReducer,
+    interactionsReducer
   },
   middleware: (getDefaultMiddleware) => [
     ...getDefaultMiddleware(),

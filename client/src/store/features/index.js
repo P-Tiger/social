@@ -5,3 +5,5 @@ export * from './user';
 export * from './department';
 export * from './upload';
 export * from './news';
+export * from './posts';
+export * from './interaction';

@@ -12,14 +12,25 @@ const router = express.Router();
 
 router.get('/v1/interactions', verify_user_token, async (req, res, next) => {
     let {
-        post_id
+        post_ids
     } = req.query
     let where = {
         status: Interaction.STT_ACTIVE
     }
     let pager = paging(req.query)
-    if (post_id) {
-        where.post_id = post_id
+    if (post_ids) {
+        try {
+            post_ids = JSON.parse(post_ids)
+        } catch (error) {
+            console.log(error)
+            return res.status(200).send({
+                total: 0,
+                data: []
+            })
+        }
+        where.post_id = {
+            $in: post_ids
+        }
     }
     let data = await Interaction.getList(where, pager);
     return res.status(200).send(data);
@@ -28,9 +39,7 @@ router.get('/v1/interactions', verify_user_token, async (req, res, next) => {
 
 router.post('/v1/interactions', verify_user_token, async (req, res, next) => {
     let user = res.state.user;
-
     let {
-        title,
         comment,
         post_id
     } = req.body
@@ -66,6 +75,9 @@ router.post('/v1/interactions', verify_user_token, async (req, res, next) => {
 
 router.put('/v1/interactions-stt', verify_user_token, async (req, res, next) => {
     let user = res.state.user;
+    let {
+        id
+    } = req.body
     let dataUpdate = {
         status: Interaction.STT_INACTIVE
     }
@@ -86,7 +98,8 @@ router.put('/v1/interactions-stt', verify_user_token, async (req, res, next) => 
         console.log(error);
         return renderErr("Interaction Create", res, 500, "User Create");
     }
-    res.send("Success")
+    data = await Interaction.findById(data.id)
+    return res.status(200).send(data)
 });
 
 

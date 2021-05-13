@@ -1,15 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, fork, put, take, takeLatest } from 'redux-saga/effects';
 import {
   postsList,
   postsDetail,
   postsPut,
   postsPutStatus,
-  postsPost
+  postsPost,
+  interactionsList
 } from '../../../data'
 import Swal from 'sweetalert2'
 import _ from 'lodash';
 import validate from 'objectid'
+import update from 'react-addons-update';
 const initialState = {
   // all properties in this state would be passed to the
   // reducer for the first time when Redux initializes
@@ -74,7 +76,7 @@ const postsSlice = createSlice({
     success: (state, action) => {
       return {
         ...state,
-        postsData: action.payload,
+        postsData: action.payload.data,
       }
     },
     successDetail: (state, action) => {
@@ -84,11 +86,29 @@ const postsSlice = createSlice({
       }
     },
     after: (state, action) => {
-      console.log(action.payload)
       return {
         ...state,
-        postsData: action.payload
+        postsData: action.payload.data
       }
+    },
+    afterStatus: (state, action) => {
+      let filterData = state.postsData.filter(x => x._id != action.payload._id)
+      return {
+        ...state,
+        postsData: [...filterData]
+      }
+    },
+    afterUpdate: (state, action) => {
+      let findDataIndex = state.postsData.findIndex(x => x._id == action.payload._id)
+      let newData = update(state, {
+        postsData: {
+          [findDataIndex]: {
+            title: { $set: action.payload.title },
+            content: { $set: action.payload.content }
+          }
+        }
+      })
+      return newData;
     },
     failureDetail: (state) => {
       return {
@@ -158,7 +178,7 @@ function* postsHandlerUpdate(action) {
   try {
 
     let response = yield call(postsPut, action.payload)
-    yield put({ type: "posts/successDetail", payload: response.data })
+    yield put({ type: "posts/afterUpdate", payload: response.data })
   } catch (error) {
     if ((error.message).includes('401')) {
       localStorage.removeItem('_Auth')
@@ -174,23 +194,8 @@ function* postsHandlerUpdate(action) {
 
 function* postsHandlerUpdateStatus(action) {
   try {
-    let {
-      id,
-      page
-    } = action.payload
-    let response = yield call(postsPutStatus, { id: id })
-    yield put({ type: "posts/successDetail", payload: response.data })
-    let splitData = _.split(window.location.href, "#");
-    let id_department = splitData[splitData.length - 1]
-    if (validate.isValid(id_department)) {
-      let responseList = yield call(postsList, { department: id_department, page: page, perPage: 10 })
-      yield put({ type: "posts/success", payload: responseList.data })
-    } else {
-      let responseList = yield call(postsList, { page: page, perPage: 10 })
-      yield put({ type: "posts/success", payload: responseList.data })
-    }
-
-    Swal.fire("Xoá thành công")
+    let response = yield call(postsPutStatus, action.payload)
+    yield put({ type: "posts/afterStatus", payload: response.data })
   } catch (error) {
     if ((error.message).includes('401')) {
       localStorage.removeItem('_Auth')
@@ -198,7 +203,6 @@ function* postsHandlerUpdateStatus(action) {
     } else {
 
     }
-    yield put({ type: "posts/failureDetail" })
   }
   // perform side effects here
 }
@@ -238,6 +242,21 @@ function* postsHandlerPost(action) {
   // perform side effects here
 }
 
+function* postHandlerGetInteraction(action) {
+  try {
+    let response = yield call(interactionsList, action.payload)
+    yield put({ type: "interactions/success", payload: response.data })
+  } catch (error) {
+    if ((error.message).includes('401')) {
+      localStorage.removeItem('_Auth')
+      window.location.reload();
+    } else {
+
+    }
+    yield put({ type: "interactions/failure" })
+  }
+}
+
 // The function below is called a saga and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(barSaga(10))`. This
 // will call the async incrementHandler with the `action` as the first argument.
@@ -245,8 +264,15 @@ function* postsHandlerPost(action) {
 export function* postsSaga() {
   // barSaga would listen to incrementByAmount action and call incrementHandler()
   yield takeLatest(request, postsHandler);
-  yield takeLatest(requestDetail, postsHandlerDetail);
-  yield takeLatest(requestUpdate, postsHandlerUpdate);
   yield takeLatest(requestUpdateStatus, postsHandlerUpdateStatus);
-  yield takeLatest(requestPost, postsHandlerPost);
+  yield takeLatest(requestUpdate, postsHandlerUpdate);
+  while (true) {
+    const { payload } = yield take("posts/success");
+    let listIdPost = _.map(payload?.data || [], "_id")
+    if (listIdPost.length > 0) {
+      yield fork(postHandlerGetInteraction, { post_ids: listIdPost, page: 1, perPage: 5 })
+    }
+  }
+  // yield takeLatest(requestDetail, postsHandlerDetail);
+  // yield takeLatest(requestPost, postsHandlerPost);
 }
