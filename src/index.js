@@ -13,6 +13,7 @@ import {
 import routeLog from './middlewares/route-log';
 import whiteListOrigin from './middlewares/white-list-origin';
 import { Department, New, User } from './models';
+
 // import {
 //     Chat
 // } from './models';

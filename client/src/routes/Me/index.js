@@ -102,6 +102,7 @@ export const Me = () => {
                                                 id="custom-file"
                                                 label="Thay đổi hình ảnh"
                                                 onChange={handleChangeImage}
+                                                accept="image/*"
                                             />
                                             <Container>
                                                 <Row>

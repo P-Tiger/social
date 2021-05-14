@@ -3,7 +3,7 @@ import {
     verify_user_token
 } from '../middlewares/jwt-verify';
 import {
-    Post
+    Post, User
 } from '../models';
 import { paging, renderlogInfo } from './helper';
 
@@ -11,6 +11,7 @@ const router = express.Router();
 
 
 router.get('/v1/posts', verify_user_token, async (req, res, next) => {
+    console.log(req.query)
     let pager = paging(req.query)
     let where = {
         status: Post.STT_ACTIVE
@@ -45,7 +46,12 @@ router.post('/v1/posts', verify_user_token, async (req, res, next) => {
         console.log(error);
         return renderErr("User Create", res, 500, "User Create");
     }
-    data = await Post.findById(data.id)
+    data = await Post.findById(data.id).
+        populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name student_info'
+        }])
     return res.send(data)
 });
 
@@ -79,7 +85,12 @@ router.put('/v1/posts', verify_user_token, async (req, res, next) => {
         console.log(error);
         return renderErr("User Create", res, 500, "User Create");
     }
-    data = await Post.findById(data.id)
+    data = await Post.findById(data.id).
+        populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name student_info'
+        }])
     return res.send(data)
 });
 
@@ -109,7 +120,12 @@ router.put('/v1/posts-stt', verify_user_token, async (req, res, next) => {
         console.log(error);
         return renderErr("Interaction Create", res, 500, "User Create");
     }
-    data = await Post.findById(data.id);
+    data = await Post.findById(data.id).
+        populate([{
+            path: 'creator',
+            model: User,
+            select: 'id name student_info'
+        }]);
     return res.status(200).send(data)
 });
 

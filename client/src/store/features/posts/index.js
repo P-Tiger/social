@@ -42,7 +42,15 @@ const postsSlice = createSlice({
         ...state
       }
     },
-
+    requestPager: (state) => {
+      // Redux Toolkit allows us to write "mutating" logic in reducers. It
+      // doesn't actually mutate the state because it uses the Immer library,
+      // which detects changes to a "draft state" and produces a brand new
+      // immutable state based off those changes
+      return {
+        ...state
+      }
+    },
     requestDetail: (state) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
@@ -98,6 +106,13 @@ const postsSlice = createSlice({
         postsData: [...filterData]
       }
     },
+    afterCreate: (state, action) => {
+      console.log(action.payload)
+      return {
+        ...state,
+        postsData: [action.payload, ...state.postsData]
+      }
+    },
     afterUpdate: (state, action) => {
       let findDataIndex = state.postsData.findIndex(x => x._id == action.payload._id)
       let newData = update(state, {
@@ -138,7 +153,7 @@ const postsSlice = createSlice({
 });
 
 export const postsReducer = postsSlice.reducer;
-export const { request, clear, after, requestDetail, clearDetail, requestUpdate, requestUpdateStatus, requestPost } = postsSlice.actions;
+export const { request, clear, after, requestDetail, clearDetail, requestUpdate, requestUpdateStatus, requestPost, requestPager } = postsSlice.actions;
 
 function* postsHandler(action) {
   try {
@@ -209,27 +224,8 @@ function* postsHandlerUpdateStatus(action) {
 
 function* postsHandlerPost(action) {
   try {
-    let {
-      department,
-      title,
-      content,
-      listDepartment,
-    } = action.payload
-    yield call(postsPost, { department: department, title: title, content: content })
-    let splitData = _.split(window.location.href, "#");
-    let id = splitData[splitData.length - 1]
-    if (validate.isValid(id)) {
-      let checkId = _.find(listDepartment, { _id: id });
-      if (!checkId) {
-        return Swal.fire("Tạo thất bại");
-      }
-      let responseList = yield call(postsList, { department: id, page: 1, perPage: 10 })
-      yield put({ type: "posts/success", payload: responseList.data })
-    } else {
-      window.location.href = window.location.href + "#" + department
-      window.location.reload()
-    }
-    Swal.fire("Tạo thành công")
+    let response = yield call(postsPost, action.payload)
+    yield put({ type: "posts/afterCreate", payload: response.data })
   } catch (error) {
     if ((error.message).includes('401')) {
       localStorage.removeItem('_Auth')
@@ -237,7 +233,6 @@ function* postsHandlerPost(action) {
     } else {
 
     }
-    Swal.fire("Tạo thất bại")
   }
   // perform side effects here
 }
@@ -257,6 +252,22 @@ function* postHandlerGetInteraction(action) {
   }
 }
 
+function* postHandlePager(action) {
+  try {
+    let response = yield call(postsList, action.payload)
+    yield put({ type: "posts/success", payload: response.data })
+  } catch (error) {
+    if ((error.message).includes('401')) {
+      localStorage.removeItem('_Auth')
+      window.location.reload();
+    } else {
+
+    }
+    yield put({ type: "posts/failure" })
+  }
+  // perform side effects here
+}
+
 // The function below is called a saga and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(barSaga(10))`. This
 // will call the async incrementHandler with the `action` as the first argument.
@@ -266,6 +277,8 @@ export function* postsSaga() {
   yield takeLatest(request, postsHandler);
   yield takeLatest(requestUpdateStatus, postsHandlerUpdateStatus);
   yield takeLatest(requestUpdate, postsHandlerUpdate);
+  yield takeLatest(requestPost, postsHandlerPost);
+  yield takeLatest(requestPager, postHandlePager);
   while (true) {
     const { payload } = yield take("posts/success");
     let listIdPost = _.map(payload?.data || [], "_id")
@@ -274,5 +287,4 @@ export function* postsSaga() {
     }
   }
   // yield takeLatest(requestDetail, postsHandlerDetail);
-  // yield takeLatest(requestPost, postsHandlerPost);
 }
