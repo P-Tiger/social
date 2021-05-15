@@ -155,3 +155,22 @@ body {
     cursor: pointer;
   }
 
+  .row-flex{
+    justify-content: flex-end;
+  }
+
+  .position_css{
+    position: sticky;
+    position: -webkit-sticky;
+    top: 10%;
+    max-height: 100px;
+  }
+  .collapse.show{
+    max-height: 500px;
+    overflow: scroll;
+  }
+  .card-header{
+    align-items: center;
+      display: flex;
+      justify-content: space-between;
+  }

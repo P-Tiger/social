@@ -1,14 +1,16 @@
 import $ from 'jquery';
 import moment from 'moment';
 import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Redirect, Route } from 'react-router';
 import { io } from 'socket.io-client';
-
+import { after } from '../store/features/news';
 
 let socket = null;
 export const PrivateRoute = ({ component: Component, ...rest }) => {
     let user = JSON.parse(localStorage.getItem("_Auth"))
     let server = process.env.REACT_APP_SOCKET;
+    const dispatch = useDispatch()
     if (user) {
         socket = io(server, {
             transports: ["websocket"],
@@ -17,6 +19,9 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
     }
     useEffect(() => {
         socket.on("Output Create", data => {
+            if (data.dataList) {
+                dispatch(after(data.dataList))
+            }
             if (user?.type === 3) {
                 $(".notify").append(`
             <div class="fade toast show" role="alert" aria-live="assertive" aria-atomic="true">
@@ -44,7 +49,7 @@ export const PrivateRoute = ({ component: Component, ...rest }) => {
                 }, 5000)
             }
         })
-    }, [user?.type])
+    }, [user?.type, dispatch])
 
     return (
         <Route

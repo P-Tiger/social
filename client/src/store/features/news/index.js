@@ -51,6 +51,15 @@ const newsSlice = createSlice({
         newsDataDetail: {}
       }
     },
+    requestPager: (state) => {
+      // Redux Toolkit allows us to write "mutating" logic in reducers. It
+      // doesn't actually mutate the state because it uses the Immer library,
+      // which detects changes to a "draft state" and produces a brand new
+      // immutable state based off those changes
+      return {
+        ...state
+      }
+    },
     requestUpdate: (state) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
@@ -118,7 +127,7 @@ const newsSlice = createSlice({
 });
 
 export const newsReducer = newsSlice.reducer;
-export const { request, clear, after, requestDetail, clearDetail, requestUpdate, requestUpdateStatus, requestPost } = newsSlice.actions;
+export const { request, clear, after, requestDetail, clearDetail, requestUpdate, requestUpdateStatus, requestPost, requestPager } = newsSlice.actions;
 
 function* newsHandler(action) {
   try {
@@ -132,6 +141,20 @@ function* newsHandler(action) {
 
     }
     yield put({ type: "news/failure" })
+  }
+  // perform side effects here
+}
+function* newsHandlerPager(action) {
+  try {
+    let response = yield call(newsList, action.payload)
+    yield put({ type: "news/success", payload: response.data })
+  } catch (error) {
+    if ((error.message).includes('401')) {
+      localStorage.removeItem('_Auth')
+      window.location.reload();
+    } else {
+
+    }
   }
   // perform side effects here
 }
@@ -249,4 +272,5 @@ export function* newsSaga() {
   yield takeLatest(requestUpdate, newsHandlerUpdate);
   yield takeLatest(requestUpdateStatus, newsHandlerUpdateStatus);
   yield takeLatest(requestPost, newsHandlerPost);
+  yield takeLatest(requestPager, newsHandlerPager);
 }

@@ -263,7 +263,6 @@ function* postHandlePager(action) {
     } else {
 
     }
-    yield put({ type: "posts/failure" })
   }
   // perform side effects here
 }

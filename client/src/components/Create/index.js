@@ -12,11 +12,11 @@ export default function CreateComponent({ show, setShow, handleClose, department
 
 
     useEffect(() => {
-        socket.on("Output Create", data => {
-            if (data.dataList) {
-                dispatch(after(data.dataList))
-            }
-        })
+        // socket.on("Output Create", data => {
+        //     if (data.dataList) {
+        //         dispatch(after(data.dataList))
+        //     }
+        // })
     }, [dispatch, socket])
 
     const handleSubmit = (e) => {
