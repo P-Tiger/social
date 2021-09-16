@@ -1,7 +1,6 @@
-import mongoose from 'mongoose'
-const Schema = mongoose.Schema;
+import mongoose, { Schema } from 'mongoose'
 
-const Chat = mongoose.model("chats", mongoose.Schema({
+const Chat = mongoose.model("chats", Schema({
     message: {
         type: String
     },
@@ -12,7 +11,9 @@ const Chat = mongoose.model("chats", mongoose.Schema({
     type: {
         type: String
     },
-}, { timestamps: true }))
+}, {
+    timestamps: true
+}))
 Chat.getList = async (where, paging) => {
     let data = await Chat.find().sort({ createdAt: 1 }).populate("sender", { password: 0, token_info: 0 });
     return data

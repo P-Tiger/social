@@ -1,5 +1,5 @@
 import Parameter from 'parameter'
-var parameter = new Parameter();
+let parameter = new Parameter();
 
 let keysPostAuth = {
     password: {
@@ -7,11 +7,20 @@ let keysPostAuth = {
         required: true,
         allowNull: false
     },
-    email: {
+    user_name: {
         type: 'string',
         required: true,
         allowNull: false
     },
+}
+
+let keysPostAuthGoogle = {
+    token_id: {
+        type: 'string',
+        required: true,
+        allowNull: false
+    },
+
 }
 
 async function validatorsPostAuth(req, res, next) {
@@ -22,6 +31,15 @@ async function validatorsPostAuth(req, res, next) {
     await next();
 }
 
+async function validatorsPostAuthGoogle(req, res, next) {
+    let errors = parameter.validate(keysPostAuthGoogle, req.body)
+    if (errors) {
+        return res.status(400).send(errors)
+    }
+    await next();
+}
+
 export {
-    validatorsPostAuth
+    validatorsPostAuth,
+    validatorsPostAuthGoogle
 }

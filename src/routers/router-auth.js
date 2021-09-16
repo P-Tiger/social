@@ -14,20 +14,24 @@ import {
     readFileAsync
 } from '../services/file';
 import {
-    validatorsPostAuth
+    validatorsPostAuth,
+    validatorsPostAuthGoogle
 } from '../validators/validators-auth';
 import {
     renderErr
 } from './helper';
+import {
+    OAuth2Client
+} from 'google-auth-library'
 
 const router = express.Router();
 router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
     let {
-        email,
+        user_name,
         password
     } = req.body;
     let user = await User.findOne({
-        email: email
+        user_name: user_name
     });
     let a = false;
     try {
@@ -39,6 +43,9 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
         let data = {
             id: user.id,
             name: user.name || "",
+            type: user.type || null,
+            list_department: user.list_department || [],
+            image: user.student_info && user.student_info.image || ""
         };
         const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
         const token = jwt.sign(data, cert, {
@@ -47,7 +54,7 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
         try {
             await User.findByIdAndUpdate(user.id, {
                 token_info: token
-            }, {})
+            })
         } catch (e) {
             return renderErr("Login", res, 500, "Update token");
         }
@@ -57,6 +64,66 @@ router.post('/v1/login', validatorsPostAuth, async (req, res, next) => {
     } else {
         return renderErr("Login", res, 403, "Incorrect username or password");
     }
+    await next();
+});
+
+router.post('/v1/login-google', validatorsPostAuthGoogle, async (req, res, next) => {
+    const client = new OAuth2Client(process.env.CLIENT_ID)
+    let {
+        token_id,
+    } = req.body;
+    const ticket = await client.verifyIdToken({
+        idToken: token_id,
+        audience: process.env.CLIENT_ID
+    });
+    if (!ticket) {
+        return renderErr("Login google", res, 400, "token")
+    }
+    const { name, email, picture } = ticket.getPayload();
+    let checkEmail = await User.findOne({ email: email });
+    let user = null
+    if (!checkEmail) {
+        try {
+            user = await User.create({
+                name: name,
+                email: email,
+                student_info: {
+                    faculty: '',
+                    class_room: '',
+                    image: picture || ""
+                },
+                type: User.TYPE_USER_STUDENT
+            })
+        } catch (error) {
+            console.log(error)
+            return renderErr("Login google", res, 500, "Create User")
+        }
+    } else {
+        user = checkEmail
+    }
+
+    let data = {
+        id: user.id,
+        name: user.name || "",
+        type: user.type || null,
+        list_department: user.list_department || [],
+        image: user.student_info && user.student_info.image || ""
+    };
+    const cert = await readFileAsync(cfg('JWT_PRIVATE_KEY', String));
+    const token = jwt.sign(data, cert, {
+        algorithm: 'ES256'
+    });
+    try {
+        await User.findByIdAndUpdate(user.id, {
+            token_info: token
+        }, {})
+    } catch (e) {
+        return renderErr("Login", res, 500, "Update token");
+    }
+    res.status(200).send(Object.assign({
+        token
+    }, data));
+
     await next();
 });
 
